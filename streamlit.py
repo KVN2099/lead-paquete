@@ -117,7 +117,7 @@ if df is not None:
     
     # Add reset filters button
     if st.sidebar.button("Restablecer Filtros"):
-        st.experimental_rerun()
+        st.rerun()
     
     # Add summary in sidebar
     st.sidebar.markdown("---")
