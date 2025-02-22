@@ -131,6 +131,24 @@ if df is not None:
         value=f"${df_filtered['valor'].mean():,.2f}"
     )
 
+    # Add visualization selector in sidebar
+    st.sidebar.markdown("---")
+    st.sidebar.header("📊 Visualizaciones")
+    
+    viz_options = {
+        "Tendencia Temporal": "time_series",
+        "Promedio Mensual": "monthly_avg",
+        "Comparación Anual": "yearly_comparison",
+        "Análisis Estacional": "seasonal",
+        "Distribución de Valores": "distribution"
+    }
+    
+    selected_viz = st.sidebar.multiselect(
+        "Seleccionar Visualizaciones",
+        options=list(viz_options.keys()),
+        default=list(viz_options.keys())
+    )
+
     # Statistical Analysis Section
     st.header("📊 Análisis Numérico")
     
@@ -172,128 +190,124 @@ if df is not None:
         st.metric("Percentil 75", f"${df['valor'].quantile(0.75):,.2f}")
         st.metric("Percentil 25", f"${df['valor'].quantile(0.25):,.2f}")
 
-    # Distribution histogram
-    st.subheader("Distribución de Valores")
-    num_bins = st.slider("Número de intervalos", min_value=10, max_value=50, value=20)
-    
-    fig_hist = px.histogram(
-        df,
-        x='valor',
-        nbins=num_bins,
-        title='Distribución de Valores',
-        template='plotly_dark',
-        color_discrete_sequence=['#00BFA5']
-    )
-    fig_hist.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        title_font_size=20
-    )
-    st.plotly_chart(fig_hist, use_container_width=True)
-
     # Visual Analysis Section
     st.header("📈 Análisis Visual")
 
-    # Time series plot
-    st.subheader("Tendencia de valor a lo largo del tiempo")
-    fig = px.line(
-        df,
-        x='fecha',
-        y='valor',
-        title='Valor de agua a lo largo del tiempo',
-        template='plotly_dark',
-        color_discrete_sequence=['#00C9FF']
-    )
-    fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        title_font_size=20
-    )
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Monthly average consumption
-    st.subheader("Valor promedio mensual")
-    monthly_avg = df.groupby('mes')['valor'].mean().reset_index()
-    
-    fig_monthly = px.bar(
-        monthly_avg,
-        x='mes',
-        y='valor',
-        title='Valor promedio por mes',
-        labels={'mes': 'Mes', 'valor': 'Valor promedio ($)'},
-        template='plotly_dark',
-        color_discrete_sequence=['#00E676']
-    )
-    
-    fig_monthly.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        title_font_size=20
-    )
-    
-    # Update x-axis to show month names
-    fig_monthly.update_xaxes(
-        ticktext=list(meses.values()),
-        tickvals=list(meses.keys())
-    )
-    
-    st.plotly_chart(fig_monthly, use_container_width=True)
-    
-    # Add year-over-year comparison
-    st.subheader("Comparación Año a Año")
-    yearly_avg = df.groupby('año')['valor'].agg(['mean', 'sum']).reset_index()
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig_yearly = px.line(
-            yearly_avg,
-            x='año',
-            y='mean',
-            title='Promedio Anual',
+    if "Tendencia Temporal" in selected_viz:
+        st.subheader("Tendencia de valor a lo largo del tiempo")
+        fig = px.line(
+            df,
+            x='fecha',
+            y='valor',
+            title='Valor de agua a lo largo del tiempo',
             template='plotly_dark',
-            color_discrete_sequence=['#FF4081']
+            color_discrete_sequence=['#00C9FF']
         )
-        fig_yearly.update_layout(
+        fig.update_layout(
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
             title_font_size=20
         )
-        st.plotly_chart(fig_yearly, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
     
-    with col2:
-        fig_yearly_total = px.bar(
-            yearly_avg,
-            x='año',
-            y='sum',
-            title='Total Anual',
+    if "Promedio Mensual" in selected_viz:
+        st.subheader("Valor promedio mensual")
+        monthly_avg = df.groupby('mes')['valor'].mean().reset_index()
+        
+        fig_monthly = px.bar(
+            monthly_avg,
+            x='mes',
+            y='valor',
+            title='Valor promedio por mes',
+            labels={'mes': 'Mes', 'valor': 'Valor promedio ($)'},
             template='plotly_dark',
-            color_discrete_sequence=['#7C4DFF']
+            color_discrete_sequence=['#00E676']
         )
-        fig_yearly_total.update_layout(
+        fig_monthly.update_layout(
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
             title_font_size=20
         )
-        st.plotly_chart(fig_yearly_total, use_container_width=True)
+        fig_monthly.update_xaxes(
+            ticktext=list(meses.values()),
+            tickvals=list(meses.keys())
+        )
+        st.plotly_chart(fig_monthly, use_container_width=True)
+    
+    if "Comparación Anual" in selected_viz:
+        st.subheader("Comparación Año a Año")
+        yearly_avg = df.groupby('año')['valor'].agg(['mean', 'sum']).reset_index()
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            fig_yearly = px.line(
+                yearly_avg,
+                x='año',
+                y='mean',
+                title='Promedio Anual',
+                template='plotly_dark',
+                color_discrete_sequence=['#FF4081']
+            )
+            fig_yearly.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                title_font_size=20
+            )
+            st.plotly_chart(fig_yearly, use_container_width=True)
+        
+        with col2:
+            fig_yearly_total = px.bar(
+                yearly_avg,
+                x='año',
+                y='sum',
+                title='Total Anual',
+                template='plotly_dark',
+                color_discrete_sequence=['#7C4DFF']
+            )
+            fig_yearly_total.update_layout(
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                title_font_size=20
+            )
+            st.plotly_chart(fig_yearly_total, use_container_width=True)
 
-    # Add seasonal analysis
-    st.subheader("Análisis Estacional")
-    seasonal_avg = df.groupby('estacion')['valor'].mean().reset_index()
-    
-    fig_seasonal = px.pie(
-        seasonal_avg,
-        values='valor',
-        names='estacion',
-        title='Distribución Estacional del Consumo',
-        template='plotly_dark',
-        color_discrete_sequence=['#FF9800', '#4CAF50', '#2196F3', '#F44336']
-    )
-    fig_seasonal.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        title_font_size=20
-    )
-    st.plotly_chart(fig_seasonal, use_container_width=True)
+    if "Análisis Estacional" in selected_viz:
+        st.subheader("Análisis Estacional")
+        seasonal_avg = df.groupby('estacion')['valor'].mean().reset_index()
+        
+        fig_seasonal = px.pie(
+            seasonal_avg,
+            values='valor',
+            names='estacion',
+            title='Distribución Estacional del Consumo',
+            template='plotly_dark',
+            color_discrete_sequence=['#FF9800', '#4CAF50', '#2196F3', '#F44336']
+        )
+        fig_seasonal.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            title_font_size=20
+        )
+        st.plotly_chart(fig_seasonal, use_container_width=True)
+
+    if "Distribución de Valores" in selected_viz:
+        st.subheader("Distribución de Valores")
+        num_bins = st.slider("Número de intervalos", min_value=10, max_value=50, value=20)
+        
+        fig_hist = px.histogram(
+            df,
+            x='valor',
+            nbins=num_bins,
+            title='Distribución de Valores',
+            template='plotly_dark',
+            color_discrete_sequence=['#00BFA5']
+        )
+        fig_hist.update_layout(
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            title_font_size=20
+        )
+        st.plotly_chart(fig_hist, use_container_width=True)
 
     # Download data option
     st.subheader("Descargar datos")
