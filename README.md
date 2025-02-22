@@ -67,3 +67,7 @@ El archivo `consumo_agua.csv` debe contener las siguientes columnas:
 2. Utilice los filtros en la barra lateral para personalizar el análisis
 3. Explore las diferentes visualizaciones y métricas
 4. Descargue los datos filtrados en formato CSV si lo necesita
+
+# TODO
+1. Aplicar las visualizaciones y filtros para el modelo (split train/test)
+2. Avanzar en las preguntas de investigación (un par de preguntas)
