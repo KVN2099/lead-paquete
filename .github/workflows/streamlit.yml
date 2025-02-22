@@ -16,6 +16,8 @@ jobs:
           pip install -r requirements.txt
       - name: Deploy to GitHub Pages
         uses: crazy-max/ghaction-github-pages@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           target_branch: main
           build_dir: .
