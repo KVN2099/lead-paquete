@@ -1,73 +1,62 @@
-# Dashboard de Análisis de Valor del Agua
+# Data Analysis Streamlit App
 
-## Descripción
+A comprehensive data analysis application built with Streamlit that leverages the `framework_Final.py` module for various data analysis tasks.
 
-Una aplicación web desarrollada con Streamlit para analizar y visualizar datos históricos del valor del agua. Esta herramienta permite a los usuarios explorar tendencias, patrones estacionales y estadísticas detalladas del consumo y valor del agua.
+## Features
 
-## Características
+- **Exploratory Data Analysis**: Statistical summaries, data visualization, correlation analysis
+- **Unsupervised Learning**: PCA, clustering (K-means, K-medoids, HAC), dimensionality reduction (t-SNE, UMAP)
+- **Supervised Learning (Regression)**: Simple regression, model comparison with various algorithms
+- **Supervised Learning (Classification)**: Classification model evaluation and comparison
+- **Time Series Analysis**: Data preparation, time series creation, forecasting
 
-- 📊 Análisis numérico detallado
-- 📈 Visualizaciones interactivas
-- 🔍 Filtros dinámicos por:
-  - Rango de fechas
-  - Rango de valores
-  - Año
-  - Mes
-  - Estación
+## Installation
 
-## Visualizaciones Incluidas
-
-- Tendencias temporales
-- Promedios mensuales
-- Comparación año a año
-- Análisis estacional
-- Distribución de valores
-- Estadísticas básicas y avanzadas
-
-## Instalación
-
-1. Clonar el repositorio:
-
-```bash
-git clone https://github.com/tu-usuario/dashboard-valor-agua.git
-cd dashboard-valor-agua
-```
-
-
-2. Instalar las dependencias:
+1. Clone this repository
+2. Install the required dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
+## Usage
 
-3. Ejecutar la aplicación:
+1. Run the Streamlit app:
 
 ```bash
-streamlit run streamlit.py
+streamlit run app.py
 ```
 
+2. Access the app in your web browser (the URL will be displayed in the terminal)
+3. Select an analysis type from the sidebar
+4. Upload your CSV file
+5. Select the appropriate delimiter and decimal separator
+6. Configure the analysis options and run the desired analysis
 
-## Requisitos
+## Required Data Formats
 
-- Python 3.8 o superior
-- Streamlit 1.28.0 o superior
-- Pandas 2.0.0 o superior
-- Plotly 5.18.0 o superior
+- **Exploratory Data Analysis**: Any CSV file with numerical columns
+- **Unsupervised Learning**: CSV file with numerical features
+- **Supervised Learning (Regression)**: CSV file with numerical target variable and features
+- **Supervised Learning (Classification)**: CSV file with a binary target column (preferably named 'Bankrupt?')
+- **Time Series Analysis**: CSV file with date column and value column
 
-## Estructura de Datos
+## Dependencies
 
-El archivo `consumo_agua.csv` debe contener las siguientes columnas:
-- `fecha`: Fecha del registro
-- `valor`: Valor monetario del agua
+The application requires the following main libraries:
+- streamlit
+- pandas
+- numpy
+- matplotlib
+- seaborn
+- scikit-learn
+- prince
+- sklearn_extra
+- scipy
+- umap
 
-## Uso
+These dependencies are included in the `requirements.txt` file.
 
-1. Inicie la aplicación con `streamlit run streamlit.py`
-2. Utilice los filtros en la barra lateral para personalizar el análisis
-3. Explore las diferentes visualizaciones y métricas
-4. Descargue los datos filtrados en formato CSV si lo necesita
+## Note
 
-# TODO
-1. Aplicar las visualizaciones y filtros para el modelo (split train/test)
-2. Avanzar en las preguntas de investigación (un par de preguntas)
+Make sure that `framework_Final.py` is in the same directory as the app.py file.
