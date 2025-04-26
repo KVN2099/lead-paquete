@@ -11,5 +11,5 @@ scipy==1.11.4
 # umap-learn==0.5.5
 plotly==5.18.0
 
-# Alternative for dimensionality reduction if needed
-openTSNE==1.0.0 
+# Remove openTSNE as it requires system libraries not available in Streamlit Cloud
+# openTSNE==1.0.0 

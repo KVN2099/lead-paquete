@@ -292,8 +292,12 @@ if uploaded_file is not None:
                 with tab3:
                     st.subheader("Dimensionality Reduction")
                     
+                    # Check if any dimensionality reduction method is available
+                    if not UMAP_AVAILABLE:
+                        st.warning("UMAP is not available. Only t-SNE from scikit-learn will be used for dimensionality reduction.")
+                    
                     # Filter dimensionality reduction methods based on available packages
-                    dim_methods = ["t-SNE"]
+                    dim_methods = ["t-SNE"]  # t-SNE from scikit-learn is always available
                     if UMAP_AVAILABLE:
                         dim_methods.append("UMAP")
                     
@@ -308,6 +312,7 @@ if uploaded_file is not None:
                         n_neighbors = st.slider("Number of neighbors", min_value=5, max_value=50, value=15)
                     
                     if st.button("Run Dimensionality Reduction"):
+                        # Always use scikit-learn's implementation for t-SNE
                         if dim_reduction_method == "t-SNE":
                             st.write("Running t-SNE...")
                             # Will capture matplotlib output
