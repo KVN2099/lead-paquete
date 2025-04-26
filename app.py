@@ -1,38 +1,83 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from framework_Final import (
-    AnalisisDatosExploratorio,
-    NoSupervisados,
-    Supervisado,
-    evaluador,
-    SerieTiempo,
-    AnalisisDatosClasificacion
-)
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.metrics import r2_score, mean_squared_error
+# Suppress all warnings and stderr output first
+import warnings
+import sys
+import os
 
-# Check if optional packages are available (moved from direct import)
+# Completely silence warnings
+warnings.filterwarnings('ignore')
+
+# Create a class to silence stderr
+class SuppressStderr:
+    def __enter__(self):
+        self._original_stderr = sys.stderr
+        sys.stderr = open(os.devnull, 'w')
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stderr.close()
+        sys.stderr = self._original_stderr
+
+# Import standard libraries first
+with SuppressStderr():
+    import streamlit as st
+    import pandas as pd
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+# Import from framework with all errors suppressed
+FULL_IMPORTS_AVAILABLE = False
+
+# Try the basic import first
+with SuppressStderr():
+    try:
+        from framework_Final import AnalisisDatosExploratorio
+        
+        # Try the additional imports
+        try:
+            from framework_Final import (
+                NoSupervisados,
+                Supervisado,
+                evaluador,
+                SerieTiempo,
+                AnalisisDatosClasificacion
+            )
+            FULL_IMPORTS_AVAILABLE = True
+        except:
+            pass
+            
+    except Exception:
+        pass
+
+# Import required sklearn modules directly
+with SuppressStderr():
+    try:
+        from sklearn.model_selection import train_test_split
+        from sklearn.linear_model import LinearRegression, Ridge, Lasso
+        from sklearn.tree import DecisionTreeRegressor
+        from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+        from sklearn.metrics import r2_score, mean_squared_error
+    except:
+        pass
+
+# Check for optional packages without causing terminal errors
 SKLEARN_EXTRA_AVAILABLE = False
 UMAP_AVAILABLE = False
 
-try:
-    # Only check if the module is importable, but don't import specific classes
-    import sklearn_extra
-    SKLEARN_EXTRA_AVAILABLE = True
-except ImportError:
-    pass
+with SuppressStderr():
+    try:
+        # Just try to import the module name without accessing its contents
+        import importlib.util
+        if importlib.util.find_spec("sklearn_extra") is not None:
+            SKLEARN_EXTRA_AVAILABLE = True
+    except:
+        pass
 
-try:
-    import umap
-    UMAP_AVAILABLE = True
-except ImportError:
-    pass
+    try:
+        if importlib.util.find_spec("umap") is not None:
+            UMAP_AVAILABLE = True
+    except:
+        pass
 
 # Set page configuration
 st.set_page_config(page_title="Data Analysis Framework", layout="wide")
@@ -79,8 +124,13 @@ if uploaded_file is not None:
     delimiter_value = delimiter_options[delimiter]
     decimal_value = decimal_options[decimal]
     
+    # Check if we can proceed based on the selected analysis type
+    if not FULL_IMPORTS_AVAILABLE and analysis_type in ["Unsupervised Learning", "Supervised Learning (Classification)"]:
+        st.warning(f"Limited functionality mode: Some required packages couldn't be loaded for {analysis_type}. Try selecting a different analysis type or check your NumPy version (try downgrading to NumPy 1.26.0).")
+        st.info("Available analysis types in limited mode: Exploratory Data Analysis, Supervised Learning (Regression), Time Series Analysis")
+    
     # Main content based on analysis type
-    if analysis_type == "Exploratory Data Analysis":
+    elif analysis_type == "Exploratory Data Analysis":
         st.header("Exploratory Data Analysis")
         
         try:
@@ -144,7 +194,9 @@ if uploaded_file is not None:
                 st.pyplot(fig)
                 
         except Exception as e:
-            st.error(f"Error processing data: {str(e)}")
+            # Show error in the UI but don't print to terminal
+            st.error("An error occurred while processing the data. Please check your file format and settings.")
+            # Don't include the traceback or error details to prevent terminal output
     
     elif analysis_type == "Unsupervised Learning":
         st.header("Unsupervised Learning")
@@ -266,7 +318,9 @@ if uploaded_file is not None:
                             unsupervised.UMAP(n_componentes=n_components, n_neighbors=n_neighbors)
         
         except Exception as e:
-            st.error(f"Error processing data: {str(e)}")
+            # Show error in the UI but don't print to terminal
+            st.error("An error occurred while processing the data. Please check your file format and settings.")
+            # Don't include the traceback or error details to prevent terminal output
     
     elif analysis_type == "Supervised Learning (Regression)":
         st.header("Supervised Learning - Regression")
@@ -473,9 +527,9 @@ if uploaded_file is not None:
                             st.pyplot(fig)
         
         except Exception as e:
-            st.error(f"Error processing data: {str(e)}")
-            import traceback
-            st.code(traceback.format_exc())
+            # Show error in the UI but don't print to terminal
+            st.error("An error occurred while processing the data. Please check your file format and settings.")
+            # Don't include the traceback or error details to prevent terminal output
     
     elif analysis_type == "Supervised Learning (Classification)":
         st.header("Supervised Learning - Classification")
@@ -789,9 +843,9 @@ if uploaded_file is not None:
                         st.success("Model comparison completed!")
         
         except Exception as e:
-            st.error(f"Error processing data: {str(e)}")
-            import traceback
-            st.code(traceback.format_exc())
+            # Show error in the UI but don't print to terminal
+            st.error("An error occurred while processing the data. Please check your file format and settings.")
+            # Don't include the traceback or error details to prevent terminal output
     
     elif analysis_type == "Time Series Analysis":
         st.header("Time Series Analysis")
@@ -966,7 +1020,7 @@ if uploaded_file is not None:
                         else:
                             st.error("Could not create time series - no valid data found")
                     except Exception as e:
-                        st.error(f"Error creating time series: {str(e)}")
+                        st.error("An error occurred while creating the time series. Please check your file format and settings.")
             
             with tab3:
                 st.subheader("Time Series Forecasting")
@@ -1052,14 +1106,12 @@ if uploaded_file is not None:
                         else:
                             st.error("Could not create time series - no valid data found")
                     except Exception as e:
-                        st.error(f"Error during forecasting: {str(e)}")
-                        import traceback
-                        st.code(traceback.format_exc())
+                        st.error("An error occurred while forecasting. Please check your file format and settings.")
         
         except Exception as e:
-            st.error(f"Error processing data: {str(e)}")
-            import traceback
-            st.code(traceback.format_exc())
+            # Show error in the UI but don't print to terminal
+            st.error("An error occurred while processing the data. Please check your file format and settings.")
+            # Don't include the traceback or error details to prevent terminal output
 
 else:
     # Instructions when no file is uploaded

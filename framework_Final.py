@@ -6,43 +6,77 @@ import matplotlib.pyplot as plt
 from prince import PCA as PCA_Prince
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-# Import KMedoids conditionally to handle environments without scikit-learn-extra
-try:
-    from sklearn_extra.cluster import KMedoids
-    SKLEARN_EXTRA_AVAILABLE = True
-except ImportError:
-    SKLEARN_EXTRA_AVAILABLE = False
+
+# Suppress all warnings and stderr output
+import warnings
+import sys
+import os
+
+# Completely silence warnings
+warnings.filterwarnings('ignore')
+
+# Create a class to silence stderr temporarily
+class SuppressStderr:
+    def __enter__(self):
+        self._original_stderr = sys.stderr
+        sys.stderr = open(os.devnull, 'w')
+        return self
     
-from sklearn.datasets import load_digits
-from sklearn.preprocessing import StandardScaler
-from math import ceil, pi, floor
-from seaborn import color_palette
-from scipy.cluster.hierarchy import dendrogram, ward, average, single, complete, fcluster, linkage
-from sklearn.manifold import TSNE
-# Import UMAP conditionally
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stderr.close()
+        sys.stderr = self._original_stderr
+
+# Global flags for optional module availability
+SKLEARN_EXTRA_AVAILABLE = False
+UMAP_AVAILABLE = False
+
+# Attempt to import optional modules with all errors suppressed
+with SuppressStderr():
+    try:
+        from sklearn_extra.cluster import KMedoids
+        SKLEARN_EXTRA_AVAILABLE = True
+    except:
+        pass
+
+# Import standard modules
 try:
-    import umap.umap_ as um
-    UMAP_AVAILABLE = True
-except ImportError:
-    UMAP_AVAILABLE = False
+    from sklearn.datasets import load_digits
+    from sklearn.preprocessing import StandardScaler
+    from math import ceil, pi, floor
+    from seaborn import color_palette
+    from scipy.cluster.hierarchy import dendrogram, ward, average, single, complete, fcluster, linkage
+    from sklearn.manifold import TSNE
+except:
+    pass
 
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.svm import SVR
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.pipeline import make_pipeline 
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-import statistics 
-from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score
-from sklearn.metrics import ConfusionMatrixDisplay
-from sklearn.naive_bayes import GaussianNB
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
+# Attempt to import UMAP with all errors suppressed
+with SuppressStderr():
+    try:
+        import umap.umap_ as um
+        UMAP_AVAILABLE = True
+    except:
+        pass
 
+# Continue with rest of imports
+try:
+    from sklearn.linear_model import LinearRegression, Ridge, Lasso
+    from sklearn.svm import SVR
+    from sklearn.model_selection import train_test_split, GridSearchCV
+    from sklearn.pipeline import make_pipeline 
+    from sklearn.tree import DecisionTreeRegressor
+    from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+    import statistics 
+    from sklearn.metrics import r2_score, mean_squared_error
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score
+    from sklearn.metrics import ConfusionMatrixDisplay
+    from sklearn.naive_bayes import GaussianNB
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.svm import SVC
+except:
+    pass
 
 class AnalisisDatosExploratorio:
     def __init__(self, file_path, delimiter=';', decimal='.', tipo_modelo='no_supervisado'):
